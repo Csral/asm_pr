@@ -12,7 +12,7 @@ show_help() {
     echo "  -t              Show the torment log (checks $LOG_DIR/ or $LOCAL_DATA)."
     echo "  --cache-update  Force update/re-generate the $MAP_FILE."
     echo "  --no-copy       Do not copy the binary to the root as './program'."
-    echo "  --clean         Remove './program' and the '$MAP_FILE'."
+    echo "  --clean         Remove './program', '$MAP_FILE', and all build artifacts."
     echo "  -h, --help      Show this help message."
 }
 
@@ -85,7 +85,13 @@ INPUT_NAME=""
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -l|--list) list_torments; exit 0 ;;
-        --clean) rm -f program "$MAP_FILE"; echo "Cleaned."; exit 0 ;;
+        --clean) 
+            rm -f program "$MAP_FILE"
+            # Find and remove all .o and .out files in subdirectories
+            find . -maxdepth 2 -name "*.o" -type f -delete
+            find . -maxdepth 2 -name "*.out" -type f -delete
+            echo "Cleaned program, maps, and all build artifacts (.o, .out)."
+            exit 0 ;;
         --cache-update) update_map; echo "Cache updated."; exit 0 ;;
         -r) RUN=true; shift ;;
         -t) SHOW_LOG=true; shift ;;
@@ -126,26 +132,27 @@ if [[ ! -d "$TORMENT_NAME" ]]; then
 fi
 
 SRC=""
-[[ -f "$TORMENT_NAME/$TORMENT_NAME.asm" ]] && SRC="$TORMENT_NAME/$TORMENT_NAME.asm"
-[[ -z "$SRC" && -f "$TORMENT_NAME/main.asm" ]] && SRC="$TORMENT_NAME/main.asm"
+[[ -f "$TORMENT_NAME/main.asm" ]] && SRC="main.asm"
+[[ -z "$SRC" && -f "$TORMENT_NAME/$TORMENT_NAME.asm" ]] && SRC="$TORMENT_NAME.asm"
 
 if [[ -z "$SRC" ]]; then
     echo "Error: No .asm source found in $TORMENT_NAME/"
     exit 1
 fi
 
-OBJ="$TORMENT_NAME/$TORMENT_NAME.o"
-BIN="$TORMENT_NAME/$TORMENT_NAME"
+cd "$TORMENT_NAME" || exit 1 # Exit if cd fails
+OBJ="${TORMENT_NAME}.o"
+BIN="${TORMENT_NAME}.out"
 
 as --32 -o "$OBJ" "$SRC" && ld -m elf_i386 -o "$BIN" "$OBJ"
 
 if [[ $? -eq 0 ]]; then
     echo -e "\033[0;32mBuild Successful: $BIN\033[0m"
     if $COPY; then
-        cp "$BIN" ./program
-        EXEC="./program"
+        cp "$BIN" ../program  
+        EXEC="../program"    
     else
-        EXEC="$BIN"
+        EXEC="./$BIN"
     fi
     
     if $RUN; then
