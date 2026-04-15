@@ -2,6 +2,7 @@
 
 .section .data
 prompt: .ascii "> "
+msg_error_numerical_syntax_invalid: "Expected a number but didn't find a numerical value!", 0
 
 .section .bss
 .lcomm buffer, 1024
