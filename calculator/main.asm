@@ -3,6 +3,7 @@
 .section .data
 prompt: .ascii "> "
 msg_error_numerical_syntax_invalid: "Expected a number but didn't find a numerical value!", 0
+msg_error_symbol_syntax_invalid: "Syntax error: Expected a symbol after number and a space after symbol", 0
 
 .section .bss
 .lcomm buffer, 1024
