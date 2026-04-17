@@ -144,6 +144,10 @@ parse_calc:
 
         # use print_result and finish
 
+        push %eax
+        call print_result
+        add $4, %esp
+
         pop %ebx
         pop %edi
         pop %esi
