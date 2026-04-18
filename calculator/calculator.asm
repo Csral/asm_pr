@@ -171,7 +171,7 @@ parse_calc:
 
     .error_symbol_syntax_invalid:
         mov $70, %ecx
-        mov msg_error_symbol_syntax_invalid
+        mov $msg_error_symbol_syntax_invalid, %edx
 
         push %ecx
         push %edx
@@ -198,8 +198,8 @@ obtain_symbol:
     push %edi
     push %edx
 
-    mov -12(%ebp), %esi
-    mov $1, %edi
+    mov 8(%ebp), %esi
+    xor %edi, %edi
     # valid symbol is one of: +, -, *, /, %
     movzbl (%esi, %edi, 1), %eax
     inc %edi
@@ -233,7 +233,7 @@ obtain_symbol:
     cmp $32, %eax
     jne .err_invalid_statement
 
-    mov $5, %eax
+    mov $1, %eax
     jmp .end
 
     .sub_ret:
@@ -241,7 +241,7 @@ obtain_symbol:
     cmp $32, %eax
     jne .err_invalid_statement
 
-    mov $5, %eax
+    mov $1, %eax
     jmp .end
 
     .mult_ret:
@@ -249,7 +249,7 @@ obtain_symbol:
     cmp $32, %eax
     jne .err_invalid_statement
     
-    mov $5, %eax
+    mov $1, %eax
     jmp .end
 
     .div_ret:
@@ -257,7 +257,7 @@ obtain_symbol:
     cmp $32, %eax
     jne .err_invalid_statement
 
-    mov $5, %eax
+    mov $1, %eax
     jmp .end
     
     .mod_ret:
@@ -265,7 +265,7 @@ obtain_symbol:
     cmp $32, %eax
     jne .err_invalid_statement
 
-    mov $5, %eax
+    mov $1, %eax
     jmp .end
 
     .err_invalid_statement:
